@@ -1,0 +1,5 @@
+import {addDays} from './time.js';
+export const intervals=[1,3,7,14,30];
+export function status(state,id){if(state.corrections[id]===false)return 'Not started';const a=state.attempts.filter(x=>x.question===id),ind=a.filter(x=>x.outcome==='Independent'&&x.kind!=='recognition');if(new Set(ind.map(x=>x.day)).size>1)return 'Retained';if(ind.length)return 'Solved independently';if(a.some(x=>['Hints','Solution'].includes(x.outcome)))return 'Learned';return a.length||state.attemptTimer?.question===id?'Attempting':'Not started';}
+export function nextReview(previous,day,rating){let stage=rating==='Again'?0:Math.min(4,(previous?.stage??-1)+1);return {stage,due:addDays(day,rating==='Again'?1:rating==='Hard'?Math.max(1,Math.floor(intervals[stage]/2)):intervals[stage]),confidence:rating==='Again'?1:rating==='Hard'?2:rating==='Good'?3:4};}
+export function dueReviews(state,day){return Object.entries(state.reviews).filter(([,r])=>r.due<=day).sort((a,b)=>a[1].confidence-b[1].confidence||a[1].due.localeCompare(b[1].due));}

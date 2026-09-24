@@ -1,0 +1,1120 @@
+[
+  {
+    "id": 1,
+    "title": "Hash lookup, frequency maps, and grouping",
+    "hook": "Store earlier facts",
+    "idea": "Look for repeated values or complements; a map preserves a fact about each processed key.",
+    "example": "[2,7], target 9: store 2→0, then find 9−7=2 before inserting 7.",
+    "fail": "Hash iteration has no ordering guarantee; arrays used as keys compare by identity.",
+    "complexity": "Expected O(n) time, O(n) space",
+    "template": "hash",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      217,
+      242,
+      1,
+      49,
+      36,
+      128
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Prefix sums, prefix/suffix products, and frequency of prefixes",
+    "hook": "Subtract prefixes",
+    "idea": "Let p[i] be the sum before i; sum of [l,r) is p[r]−p[l]. Products need separate zero handling.",
+    "example": "[2,−1,3] → prefixes [0,2,1,4]; [1,3) totals 4−2=2.",
+    "fail": "Do not divide prefix products when zeros are possible.",
+    "complexity": "O(n) preprocessing, O(1) range sum, O(n) space",
+    "template": "prefix",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      303,
+      238,
+      560,
+      974,
+      525
+    ]
+  },
+  {
+    "id": 3,
+    "title": "Two pointers, in-place compaction, and partitioning",
+    "hook": "Move the pointer whose candidates are impossible",
+    "idea": "In a sorted pair search, a too-small sum eliminates the current left endpoint.",
+    "example": "[1,2,4,7], target 9: 1+7<9 so left advances; 2+7=9.",
+    "fail": "Unsorted pair search does not justify this elimination; rain-water needs boundary maxima.",
+    "complexity": "O(n) scan after sorting, O(1) scan space",
+    "template": "two",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      125,
+      26,
+      283,
+      88,
+      167,
+      75,
+      15,
+      11,
+      42
+    ]
+  },
+  {
+    "id": 4,
+    "title": "Variable-size sliding windows",
+    "hook": "Expand, then restore validity",
+    "idea": "Maintain exactly the contents of [left,right]; shrink until its constraint is restored.",
+    "example": "abca: after the last a, remove the first a; window bca has length 3.",
+    "fail": "For sum windows, negatives break monotonicity: [1,−1,5], target 5 can hide a length-1 answer.",
+    "complexity": "O(n) when each endpoint moves once, O(alphabet) space",
+    "template": "window",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      3,
+      424,
+      76,
+      209,
+      1004
+    ]
+  },
+  {
+    "id": 5,
+    "title": "Fixed-size windows and character counts",
+    "hook": "Keep the window width fixed",
+    "idea": "Add the entering item and remove the item k positions behind it; compare counts.",
+    "example": "For k=2 in abac, windows are ab, ba, ac; each transition changes two counts.",
+    "fail": "Variable-length matches cannot be captured by one fixed width.",
+    "complexity": "O(n + alphabet), O(alphabet) space",
+    "template": "window",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      567,
+      438
+    ]
+  },
+  {
+    "id": 6,
+    "title": "Monotonic deque for window extrema",
+    "hook": "Keep only undominated window candidates",
+    "idea": "Store indices with decreasing values; expire indices before reading the maximum.",
+    "example": "[1,3,2], k=2: 3 removes 1, maxima are 3 then 3.",
+    "fail": "Storing only values makes duplicate expiration ambiguous.",
+    "complexity": "O(n) time, O(k) space",
+    "template": "deque",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      239
+    ]
+  },
+  {
+    "id": 7,
+    "title": "Stack parsing and maintaining extra state",
+    "hook": "The stack stores unfinished work",
+    "idea": "Match a closer with the most recent opener; augmented stacks can store prefix minima.",
+    "example": "([]): push (, push [, pop [, pop (; stack ends empty.",
+    "fail": "Balanced counts alone accept )( incorrectly.",
+    "complexity": "O(n) time, O(n) space",
+    "template": "stack",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      20,
+      155,
+      150
+    ]
+  },
+  {
+    "id": 8,
+    "title": "Monotonic stack for next events and boundaries",
+    "hook": "Resolve a candidate when a stronger value arrives",
+    "idea": "A decreasing stack stores unresolved indices; pop each once on a larger value.",
+    "example": "[70,72,71]: index 0 resolves at index 1, so its wait is 1.",
+    "fail": "Equality policy differs for strictly greater versus greater-or-equal boundaries.",
+    "complexity": "O(n) amortized time, O(n) space",
+    "template": "mono",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      739,
+      84,
+      496,
+      503
+    ]
+  },
+  {
+    "id": 9,
+    "title": "Binary search: exact lookup and boundaries",
+    "hook": "Keep the answer inside a shrinking interval",
+    "idea": "For lower bound, values before lo are < target and values at/after hi are ≥ target.",
+    "example": "[1,3,3,8], target 3: lower bound is index 1, upper bound is 3.",
+    "fail": "Searching unsorted values has no monotone partition.",
+    "complexity": "O(log n) time, O(1) space",
+    "template": "binary",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      704,
+      35,
+      34,
+      74
+    ]
+  },
+  {
+    "id": 10,
+    "title": "Binary search: rotation and peak invariants",
+    "hook": "Identify the ordered half or descending boundary",
+    "idea": "Rotation splits ordering into runs; compare endpoints to identify which half can contain the target.",
+    "example": "[4,5,1,2,3], target 2 lies in the sorted right region.",
+    "fail": "Duplicates can hide the ordered half and force linear worst-case behavior.",
+    "complexity": "O(log n) for distinct rotated values, O(1) space",
+    "template": "binary",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      153,
+      33,
+      162
+    ]
+  },
+  {
+    "id": 11,
+    "title": "Binary search on a monotone feasibility answer",
+    "hook": "Search the answer only after proving monotonicity",
+    "idea": "A feasible speed stays feasible at every larger speed; search the first feasible answer.",
+    "example": "Piles [3,6], h=3: speed 3 takes 3 hours, speed 2 takes 5.",
+    "fail": "A minimum in the prompt does not itself establish monotonicity.",
+    "complexity": "O(n log R) time for range R, O(1) space",
+    "template": "answer",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      875,
+      1011
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Binary search in histories and partitioned arrays",
+    "hook": "Search an ordered history or partition boundary",
+    "idea": "Time histories support a latest timestamp ≤ query; partition search balances left/right ranks.",
+    "example": "Times [2,5,9], query 7 selects 5 via upper bound minus one.",
+    "fail": "Median partition needs sorted arrays and cross-boundary checks, not a timestamp lookup.",
+    "complexity": "O(log n) history lookup; median O(log min(m,n)), O(1) search space",
+    "template": "binary",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Arrays & strings",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      981,
+      4
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Linked-list reversal, merging, pointer gaps, and copying",
+    "hook": "Save the next pointer before rewiring",
+    "idea": "Keep the processed prefix correct and retain access to the untouched suffix.",
+    "example": "1→2→3: save 2, point 1 to null, then advance to 2.",
+    "fail": "Random-pointer cloning must preserve identity; a value-only map loses duplicate nodes.",
+    "complexity": "O(n) reversal, O(1) auxiliary space; copying needs O(n)",
+    "template": "list",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Linked lists",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      206,
+      21,
+      876,
+      19,
+      143,
+      138,
+      2,
+      25
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Fast/slow pointers and cycle detection",
+    "hook": "Use relative pointer speed",
+    "idea": "Inside a cycle, fast gains one step per iteration; their modular distance reaches zero.",
+    "example": "A→B→C→B: slow and fast eventually meet inside B,C.",
+    "fail": "Meeting is not necessarily the entry; reset one pointer to the head to locate it.",
+    "complexity": "O(n) time, O(1) space",
+    "template": "cycle",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Linked lists",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      141,
+      142,
+      287,
+      202
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Hash map plus doubly linked list",
+    "hook": "Combine fast lookup with fast reordering",
+    "idea": "A map locates a node; a doubly linked list detaches and reattaches it in constant time.",
+    "example": "Capacity 2: put A,B; get A; put C evicts B, the least recent.",
+    "fail": "A normal insertion-order map alone does not refresh recency on access.",
+    "complexity": "Expected O(1) get/put, O(capacity) space",
+    "template": "lru",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Linked lists",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      146
+    ]
+  },
+  {
+    "id": 16,
+    "title": "Tree DFS, postorder aggregation, and structural comparison",
+    "hook": "Return a subtree fact after visiting its children",
+    "idea": "Postorder computes child summaries before the parent; diameter returns height but tracks a path separately.",
+    "example": "A root with two leaves has height 2 nodes and diameter 2 edges.",
+    "fail": "A global diameter is not the value to return as child height.",
+    "complexity": "O(n) time, O(h) recursion stack",
+    "template": "tree",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Trees & tries",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      94,
+      104,
+      226,
+      100,
+      110,
+      543,
+      572,
+      1448,
+      124
+    ]
+  },
+  {
+    "id": 17,
+    "title": "Tree BFS and level aggregation",
+    "hook": "Process one complete frontier at a time",
+    "idea": "Queue size captured before the loop is the number of nodes on the current level.",
+    "example": "Root 1 with children 2,3 gives frontiers [1], then [2,3].",
+    "fail": "Adding children while looping over a changing size mixes levels.",
+    "complexity": "O(n) time, O(width) auxiliary space plus output",
+    "template": "bfs",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Trees & tries",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      102,
+      199,
+      637
+    ]
+  },
+  {
+    "id": 18,
+    "title": "BST ordering, bounds, and inorder selection",
+    "hook": "Carry ancestor bounds",
+    "idea": "A BST node must obey all ancestors; inorder traversal is sorted for a valid BST.",
+    "example": "Root 5, right 8, left child of 8 is 4: violates lower bound 5.",
+    "fail": "Checking only parent-child values misses this violation.",
+    "complexity": "O(n) validation, O(h) recursion space",
+    "template": "bst",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Trees & tries",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      98,
+      235,
+      230
+    ]
+  },
+  {
+    "id": 19,
+    "title": "Tree reconstruction, serialization, and general LCA",
+    "hook": "Reconstruct structure, not just value order",
+    "idea": "Traversal boundaries define subtrees; serialization needs missing-child markers.",
+    "example": "Preorder [2,1,3], inorder [1,2,3] splits around root 2.",
+    "fail": "Duplicate values invalidate a simple value→inorder-index map.",
+    "complexity": "O(n) with index map, O(n) auxiliary including recursion",
+    "template": "tree",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Trees & tries",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      105,
+      297,
+      236
+    ]
+  },
+  {
+    "id": 20,
+    "title": "Tries and prefix-driven search",
+    "hook": "Follow one edge per symbol",
+    "idea": "Trie paths represent prefixes; terminal flags distinguish a word from a prefix.",
+    "example": "Insert cat: c→a→t; ca is a prefix but not a stored word.",
+    "fail": "An int[26] child array assumes lowercase English letters.",
+    "complexity": "O(word length) lookup, space proportional to stored characters",
+    "template": "trie",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Trees & tries",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      208,
+      211,
+      212
+    ]
+  },
+  {
+    "id": 21,
+    "title": "Heaps: top K, streaming selection, and k-way merge",
+    "hook": "Keep the best k candidates",
+    "idea": "A min-heap of size k discards the smallest, leaving the k largest processed values.",
+    "example": "k=2 over [4,1,7]: heap retains 4,7; top is the kth largest 4.",
+    "fail": "Heap iteration is not sorted; k-way merging instead stores one head per stream.",
+    "complexity": "O(n log k) time, O(k) space",
+    "template": "heap",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Heaps",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      703,
+      1046,
+      347,
+      973,
+      215,
+      23
+    ]
+  },
+  {
+    "id": 22,
+    "title": "Two heaps and balanced streaming partitions",
+    "hook": "Balance the lower and upper halves",
+    "idea": "Max-heap lower has at most one extra item; every lower value ≤ every upper value.",
+    "example": "Insert 1,5,2: lower [2,1], upper [5], median 2.",
+    "fail": "Averaging two ints can overflow before conversion; widen first.",
+    "complexity": "O(log n) insertion, O(1) median, O(n) space",
+    "template": "median",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Heaps",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      295
+    ]
+  },
+  {
+    "id": 23,
+    "title": "Priority scheduling and merging event streams",
+    "hook": "Schedule the next available event",
+    "idea": "Separate eligibility time from priority; an item cannot run before its cooldown expires.",
+    "example": "With cooldown 2, A at t=0 cannot repeat until t=3.",
+    "fail": "Selecting the most frequent job without enforcing availability violates cooldown.",
+    "complexity": "Common heap scheduling O(n log k), O(k) working space",
+    "template": "heap",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Heaps",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      621,
+      355
+    ]
+  },
+  {
+    "id": 24,
+    "title": "Backtracking: subsets, combinations, and permutations",
+    "hook": "Choose, explore, undo",
+    "idea": "The current path describes exactly the decisions on the recursion stack.",
+    "example": "[1,2] subsets: [], [1], [1,2], [2]; copy each output path.",
+    "fail": "Saving the same mutable list makes all outputs change together.",
+    "complexity": "Subsets O(n·2^n) output/time, O(n) stack plus output",
+    "template": "backtrack",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Backtracking",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      78,
+      46,
+      39,
+      90,
+      40,
+      17
+    ]
+  },
+  {
+    "id": 25,
+    "title": "Backtracking: constrained construction, partitioning, and board search",
+    "hook": "Prune only when a constraint proves failure",
+    "idea": "Mark a choice before recursion and undo it before exploring its sibling.",
+    "example": "Word AB on [A B] visits A then B; unmark both after returning.",
+    "fail": "A global visited set across all start cells can reject valid paths.",
+    "complexity": "Exponential search, O(depth) stack plus board/path state",
+    "template": "backtrack",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Backtracking",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      22,
+      79,
+      131,
+      51
+    ]
+  },
+  {
+    "id": 26,
+    "title": "Graph/grid traversal, components, and cloning",
+    "hook": "Mark identity when discovering it",
+    "idea": "Each graph node or cell enters the frontier once; a clone map preserves shared edges.",
+    "example": "Triangle 0–1–2–0: marking on enqueue prevents repeated queue entries.",
+    "fail": "A tree traversal without visited tracking loops on cyclic graphs.",
+    "complexity": "O(V+E) time, O(V) space",
+    "template": "bfs",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      1971,
+      200,
+      695,
+      133,
+      130,
+      417,
+      547,
+      323
+    ]
+  },
+  {
+    "id": 27,
+    "title": "Multi-source BFS and shortest unweighted paths",
+    "hook": "Start every source at distance zero",
+    "idea": "A queue explores increasing hop count from all sources simultaneously.",
+    "example": "Sources at positions 0 and 4 give line distances [0,1,2,1,0].",
+    "fail": "Unequal edge costs break first-discovery shortest-distance reasoning.",
+    "complexity": "O(V+E) time, O(V) space",
+    "template": "bfs",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      994,
+      542,
+      127,
+      286
+    ]
+  },
+  {
+    "id": 28,
+    "title": "Topological sorting and directed-cycle detection",
+    "hook": "Remove prerequisites before their dependents",
+    "idea": "Indegree counts incoming unmet dependencies; only zero-indegree nodes are ready.",
+    "example": "0→2 and 1→2: emit 0,1 before 2; fewer than V outputs signals a cycle.",
+    "fail": "An arbitrary DFS preorder is not a topological order.",
+    "complexity": "O(V+E) time and space",
+    "template": "topo",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      207,
+      210,
+      269
+    ]
+  },
+  {
+    "id": 29,
+    "title": "Disjoint-set union and undirected cycle reasoning",
+    "hook": "Union components through their representatives",
+    "idea": "Parent roots identify disjoint sets; an edge within one set closes an undirected cycle.",
+    "example": "Edges (0,1),(1,2),(0,2): the third joins an already-connected pair.",
+    "fail": "DSU does not give a path or handle edge deletion directly.",
+    "complexity": "Near O(α(n)) amortized per op with rank/compression, O(n) space",
+    "template": "dsu",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      684,
+      261
+    ]
+  },
+  {
+    "id": 30,
+    "title": "Weighted shortest paths, constrained relaxation, and MST",
+    "hook": "Relax distances under the correct cost model",
+    "idea": "Nonnegative Dijkstra settles the smallest tentative distance; constrained paths need extra state.",
+    "example": "0→1 cost 5, 0→2 cost 1, 2→1 cost 1 improves distance to 1 from 5 to 2.",
+    "fail": "Negative edges invalidate Dijkstra; a stops limit needs (node,steps), not one distance.",
+    "complexity": "Dijkstra O((V+E) log V), O(V+E) space",
+    "template": "dijkstra",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      743,
+      787,
+      1584,
+      778
+    ]
+  },
+  {
+    "id": 31,
+    "title": "Advanced graph extensions: Eulerian traversal and bridges",
+    "hook": "Track edge structure beyond reachability",
+    "idea": "Euler traversal consumes each edge; bridges need discovery and low-link times.",
+    "example": "A triangle has no bridge; attaching a leaf adds one bridge edge.",
+    "fail": "A visited-vertex set cannot represent which parallel edges were used.",
+    "complexity": "O(V+E) for standard Euler/bridge traversal, O(V+E) space",
+    "template": "bfs",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Graphs",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      332,
+      1192
+    ]
+  },
+  {
+    "id": 32,
+    "title": "DP: one-dimensional choices and rolling state",
+    "hook": "Define the meaning of the previous states",
+    "idea": "A state is the optimal or counted answer for a prefix; prove its transition before coding.",
+    "example": "Stairs: ways(0)=1, ways(1)=1, ways(2)=2, ways(3)=3.",
+    "fail": "Rolling two values fails if transitions require arbitrary earlier states.",
+    "complexity": "O(n) time, O(1) space for fixed-width recurrence",
+    "template": "dp",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      70,
+      746,
+      198,
+      213,
+      91,
+      152
+    ]
+  },
+  {
+    "id": 33,
+    "title": "DP: unbounded/0-1 knapsack, counting, and reachable sums",
+    "hook": "Loop order encodes reuse",
+    "idea": "Ascending capacity reuses an item; descending capacity uses each item at most once.",
+    "example": "One coin 2 and target 4: unbounded reaches 4, 0/1 does not.",
+    "fail": "Coin combinations and ordered sequences require different loop nesting.",
+    "complexity": "O(items·capacity) time, O(capacity) space",
+    "template": "knapsack",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      322,
+      416,
+      518,
+      494
+    ]
+  },
+  {
+    "id": 34,
+    "title": "DP: segmentation and increasing subsequences",
+    "hook": "Reuse valid prefix answers",
+    "idea": "Word break tests valid cuts; LIS connects smaller earlier values to a longer subsequence.",
+    "example": "LIS of [3,1,2] is [1,2], length 2; it need not be contiguous.",
+    "fail": "Binary-search tails finds LIS length but needs extra tracking to reconstruct it.",
+    "complexity": "Basic LIS O(n²), O(n); optimized length O(n log n)",
+    "template": "dp",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      139,
+      300
+    ]
+  },
+  {
+    "id": 35,
+    "title": "DP: grid paths and dependency order",
+    "hook": "Fill cells after their dependencies",
+    "idea": "Grid paths use the count from above and left; row rolling preserves these values.",
+    "example": "2×3 grid with no obstacles has rows [1,1,1] then [1,2,3].",
+    "fail": "Obstacles reset a count to zero; diagonal moves change the transition.",
+    "complexity": "O(rows·cols) time, O(cols) rolling space",
+    "template": "grid",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      62,
+      329
+    ]
+  },
+  {
+    "id": 36,
+    "title": "DP: two-string alignment and matching",
+    "hook": "Align two prefixes",
+    "idea": "Each cell summarizes prefixes of both strings; equality and mismatch choose different transitions.",
+    "example": "LCS of ab and ac has length 1 from a; ab is not a substring of ac.",
+    "fail": "LCS, edit distance, and regex matching have different states and bases.",
+    "complexity": "O(mn) time, O(mn) table or O(n) rolling space",
+    "template": "lcs",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      1143,
+      97,
+      72,
+      115,
+      10
+    ]
+  },
+  {
+    "id": 37,
+    "title": "DP: trading state and interval decomposition",
+    "hook": "Make hidden context part of the state",
+    "idea": "Trading needs holding/cooldown state; interval DP needs both endpoints and a split decision.",
+    "example": "After selling with a cooldown, buying tomorrow is forbidden even if cash is available.",
+    "fail": "A one-number profit state loses holding/cooldown information.",
+    "complexity": "Trading O(n) with fixed states; interval DP often O(n³), O(n²)",
+    "template": "dp",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      309,
+      312
+    ]
+  },
+  {
+    "id": 38,
+    "title": "Palindrome expansion and substring reasoning",
+    "hook": "Expand while mirrored characters agree",
+    "idea": "Check both odd and even centers; each expansion preserves palindromicity.",
+    "example": "abba expands from the gap between the two b characters to the whole string.",
+    "fail": "Checking only character centers misses even-length palindromes.",
+    "complexity": "O(n²) time, O(1) auxiliary space beyond returned output",
+    "template": "palindrome",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Dynamic programming",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops",
+      "Recursion and stack frames"
+    ],
+    "questions": [
+      5,
+      647
+    ]
+  },
+  {
+    "id": 39,
+    "title": "Greedy scan, running optimum, and reachability",
+    "hook": "Maintain a proven running optimum",
+    "idea": "Discard a prefix only after proving it cannot improve any future answer.",
+    "example": "Kadane on [−2,3,−1,4]: ending sums −2,3,2,6; best is 6.",
+    "fail": "Coin denominations [1,3,4], amount 6 defeats largest-first greedy (4+1+1 vs 3+3).",
+    "complexity": "O(n) time, O(1) space for scans",
+    "template": "greedy",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Greedy & intervals",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      121,
+      53,
+      55,
+      45,
+      134,
+      763,
+      678,
+      1899
+    ]
+  },
+  {
+    "id": 40,
+    "title": "Sorting plus greedy grouping and reconstruction",
+    "hook": "Sort to expose the safe next choice",
+    "idea": "Ordering can make compatibility or grouping local; explain the exchange argument.",
+    "example": "To minimize overlapping interval removals, prefer the earliest finishing compatible interval.",
+    "fail": "Sorting people by height alone does not prove a valid queue reconstruction.",
+    "complexity": "Usually O(n log n) sort plus scan; auxiliary varies",
+    "template": "interval",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Greedy & intervals",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      853,
+      846,
+      406,
+      31
+    ]
+  },
+  {
+    "id": 41,
+    "title": "Intervals: merging, insertion, and compatible selection",
+    "hook": "Preserve the union or earliest finish",
+    "idea": "Merge overlapping ranges for union; earliest finish maximizes compatible interval count.",
+    "example": "[1,3],[2,5],[7,8] merge to [1,5],[7,8].",
+    "fail": "A union problem and a selection problem use different greedy choices.",
+    "complexity": "O(n log n) time, O(n) result space",
+    "template": "interval",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Greedy & intervals",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      56,
+      57,
+      435,
+      252
+    ]
+  },
+  {
+    "id": 42,
+    "title": "Intervals: sweep events, room allocation, and offline queries",
+    "hook": "Turn intervals into events",
+    "idea": "Process starts/ends consistently; room allocation tracks the earliest finishing room.",
+    "example": "[1,3) and [3,5) share one room if ends are processed before equal starts.",
+    "fail": "Closed intervals require different tie handling; offline query order must be restored.",
+    "complexity": "O(n log n) typical, O(n) space",
+    "template": "heap",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Greedy & intervals",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      253,
+      1851
+    ]
+  },
+  {
+    "id": 43,
+    "title": "Matrix transformation and boundary simulation",
+    "hook": "State the unprocessed boundary",
+    "idea": "Spiral traversal shrinks top/right/bottom/left without revisiting cells.",
+    "example": "2×3 matrix visits (0,0),(0,1),(0,2),(1,2),(1,1),(1,0).",
+    "fail": "After shrinking, guard empty rows/columns or a single row repeats.",
+    "complexity": "O(rows·cols) time, O(1) auxiliary plus output",
+    "template": "matrix",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      48,
+      54,
+      73
+    ]
+  },
+  {
+    "id": 44,
+    "title": "Arithmetic simulation and fast exponentiation",
+    "hook": "Reduce the exponent, retain the invariant",
+    "idea": "Binary exponentiation squares the base and consumes exponent bits.",
+    "example": "3^5: take 3, square to 9 then 81, take 81; result 243.",
+    "fail": "Negating Integer.MIN_VALUE in int overflows; cast to long first.",
+    "complexity": "O(log absolute-exponent) time, O(1) space",
+    "template": "power",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      66,
+      43,
+      7,
+      50
+    ]
+  },
+  {
+    "id": 45,
+    "title": "Bit manipulation: XOR, bit counts, and bitwise arithmetic",
+    "hook": "Use bit identities under explicit width",
+    "idea": "x XOR x=0 and x XOR 0=x cancel pairs; x&(x−1) clears one set bit.",
+    "example": "[4,1,4] XOR-folds to 1; 12 (1100) clears to 8 (1000).",
+    "fail": "XOR uniqueness assumes every other value occurs exactly twice.",
+    "complexity": "O(n) XOR fold, O(1) space; counts depend on bit width",
+    "template": "bits",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      136,
+      191,
+      338,
+      190,
+      268,
+      371
+    ]
+  },
+  {
+    "id": 46,
+    "title": "String search and unambiguous serialization",
+    "hook": "Encode boundaries explicitly",
+    "idea": "A length prefix lets the decoder distinguish payload delimiters from separators.",
+    "example": "Encode [a#b,c] as 3#a#b1#c; read length then exactly that many characters.",
+    "fail": "Plain delimiter joins cannot distinguish embedded delimiters; substring search is a separate scan.",
+    "complexity": "Naive substring O(nm); length codec O(total chars) space/time",
+    "template": "search",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      28,
+      271
+    ]
+  },
+  {
+    "id": 47,
+    "title": "Coordinate counting and geometric query design",
+    "hook": "Count coordinates with multiplicity",
+    "idea": "For an axis-aligned square, another point on the same diagonal determines its two missing corners.",
+    "example": "Query (0,0), diagonal (1,1): need (0,1) and (1,0); multiply their counts.",
+    "fail": "A set loses duplicate multiplicities; this construction is not for rotated squares.",
+    "complexity": "O(number of stored points) per query, O(unique points) space",
+    "template": "hash",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      2013
+    ]
+  },
+  {
+    "id": 48,
+    "title": "Dynamic range queries: Fenwick/segment-tree extension",
+    "hook": "Aggregate disjoint index ranges",
+    "idea": "Fenwick tree stores suffix-sized blocks; prefix queries subtract lowbit to move left.",
+    "example": "For [2,3,1], prefix(3)=6 and prefix(1)=2; range [1,3) totals 4.",
+    "fail": "A prefix-sum array cannot handle updates without rebuilding later prefixes.",
+    "complexity": "O(log n) update/query, O(n) space",
+    "template": "fenwick",
+    "recall": "Explain why the invariant is preserved, then trace the example without looking.",
+    "source": "Original teaching aid",
+    "topic": "Math & simulation",
+    "prerequisites": [
+      "Java contracts",
+      "Complexity and loops"
+    ],
+    "questions": [
+      307
+    ]
+  }
+]
