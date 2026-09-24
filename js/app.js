@@ -19,7 +19,7 @@ function progress(n,total){return `<div class="progress" role="progressbar" aria
 function done(id){return ['Learned','Solved independently','Retained'].includes(status(state,id));}
 const attempted=id=>state.attempts.some(a=>a.question===id),activeMock=()=>state.mocks.find(m=>!m.finished),minsFor=date=>state.sessions.reduce((n,s)=>n+s.splits.filter(x=>x.day===date).reduce((a,b)=>a+b.minutes,0),0);
 function selectedPlan(){return state.plan.find(d=>d.date===today());}
-function tasksFor(day){if(!day)return [];const m=state.missions[day.date]||{};return [{key:'warmup',title:'Recall before you look',detail:'Explain yesterday’s idea from memory · 5 min',complete:!!m.warmup,action:'mission',extra:`data-day="${day.date}" data-kind="warmup"`},...(day.lesson?[{key:'lesson',title:day.lesson,detail:'Foundation lesson · 15 min',complete:!!(state.lessonNotes||{})[day.number-1],action:'lesson',extra:`data-day="${day.date}" data-index="${day.number-1}"`}]:[]),...day.questions.map(qid=>({key:'q'+qid,title:qmap[qid].title,detail:`LC ${qid} · ${qmap[qid].difficulty} · ${qmap[qid].estimate} min`,complete:attempted(qid),action:'question',extra:`data-id="${qid}"`})),...(day.mock?[{key:'mock',title:'Mixed interview practice',detail:'Two questions · 60 min',complete:state.mocks.some(m=>m.day===day.date&&m.finished),action:'mock-start',extra:''}]:[]),{key:'reflection',title:'Close the loop',detail:'Save one takeaway and your next step · 5 min',complete:!!m.reflection,action:'mission',extra:`data-day="${day.date}" data-kind="reflection"`}];}
+function tasksFor(day){if(!day)return [];const m=state.missions[day.date]||{};return [{key:'warmup',title:'Recall before you look',detail:'Explain yesterday’s idea from memory · 5 min',complete:!!m.warmup,action:'mission',extra:`data-day="${day.date}" data-kind="warmup"`},...(day.lesson?[{key:'lesson',title:lessonTexts[day.number-1]?.title||day.lesson,detail:'Foundation lesson · 15 min',complete:!!(state.lessonNotes||{})[day.number-1],action:'lesson',extra:`data-day="${day.date}" data-index="${day.number-1}"`}]:[]),...day.questions.map(qid=>({key:'q'+qid,title:qmap[qid].title,detail:`LC ${qid} · ${qmap[qid].difficulty} · ${qmap[qid].estimate} min`,complete:attempted(qid),action:'question',extra:`data-id="${qid}"`})),...(day.mock?[{key:'mock',title:'Mixed interview practice',detail:'Two questions · 60 min',complete:state.mocks.some(m=>m.day===day.date&&m.finished),action:'mock-start',extra:''}]:[]),{key:'reflection',title:'Close the loop',detail:'Save one takeaway and your next step · 5 min',complete:!!m.reflection,action:'mission',extra:`data-day="${day.date}" data-kind="reflection"`}];}
 function missionComplete(d){const items=tasksFor(d);return items.every(t=>t.complete)&&!(state.missions[d.date]?.reviewIds||[]).some(x=>!state.attempts.some(a=>a.question===x&&a.day===d.date&&a.kind!=='attempt'));}
 function render(){route=(location.hash.slice(1)||'today').split('/')[0];const names={today:['◈','Today'],roadmap:['▦','Roadmap'],questions:['≡','Questions'],review:['↺','Review'],knowledge:['⌘','Java lab'],notebook:['▤','Notebook'],mocks:['◷','Mocks'],progress:['▥','Progress'],settings:['⚙','Settings']};if(!names[route])route='today';$('#nav').innerHTML=Object.entries(names).map(([k,[icon,title]])=>`<a href="#${k}" class="${k===route?'active':''}" ${k===route?'aria-current="page"':''}><span class="navicon" aria-hidden="true">${icon}</span>${title}</a>`).join('');$('#breadcrumb').textContent='Workspace / '+names[route][1];document.title=names[route][1]+' · DSA Forge';
  if(store.fault()){$('#notice').textContent='Stored data could not be loaded. It has not been overwritten. Open Settings to recover.';$('#main').innerHTML=settingsView();return;}
@@ -64,21 +64,170 @@ async function saveNote(){clearTimeout(noteTimer);if(!pendingDraft)return true;c
 function outcomeModal(qid,kind='attempt'){openedQuestion=null;openModal(`<h2>${kind==='attempt'?'Log your attempt':'Log your recall'}</h2><p>${esc(qmap[qid].title)}</p><form id="outcome-form" data-id="${qid}" data-kind="${kind}"><label>Outcome<select name="outcome">${options(['Independent','Hints','Solution','Unsuccessful'],'Independent')}</select></label><p class="small">Independent means you derived and implemented it without hints. Reading a solution records learning, not an independent solve.</p><label>One useful insight<textarea name="note" required minlength="3" placeholder="The invariant, mistake, or observation you want to remember…"></textarea></label><label>Confidence<select name="confidence">${options([['1','1 — uncertain'],['2','2 — with effort'],['3','3 — reasonably clear'],['4','4 — can explain it']],2)}</select></label><button class="primary">Save outcome & schedule review</button></form>`);}
 function recallModal(qid){openedQuestion=null;reviewRevealed=false;openModal(`<span class="eyebrow">CLOSED-BOOK RECALL · LC ${qid}</span><h2>${esc(qmap[qid].title)}</h2><form id="review-form" data-id="${qid}"><label>Review type<select name="kind">${options([['recognition','5-minute reasoning check'],['resolve','Full independent re-solve']],'recognition')}</select></label><label>Derive the approach before revealing your notes<textarea name="note" id="recall-note" required minlength="3" placeholder="State the invariant, complexity, and an edge case…"></textarea></label>${button('Reveal saved notes','reveal-notes',`data-id="${qid}"`)}<div id="revealed-notes"></div><label>Recall rating<select name="rating">${options(['Again','Hard','Good','Easy'],'Good')}</select></label><label>Assistance used<select name="outcome">${options(['Independent','Hints','Solution','Unsuccessful'],'Independent')}</select></label><p class="small">If you reveal notes before completing a full re-solve, record assistance. Recognition checks do not promote a question to Retained.</p><button class="primary">Save this review</button></form>`);}
 function patternModal(pid){const p=pmap[pid],t=templates.find(t=>t.id===p.template);openModal(`<span class="eyebrow">PATTERN ${pid} · ${esc(p.topic)}</span><h2>${esc(p.title)}</h2><h3>${esc(p.hook)}</h3><p>${esc(p.idea)}</p><div class="callout">${esc(p.example)}</div><h3>Where the shortcut fails</h3><p>${esc(p.fail)}</p><p class="small">Prerequisites: ${p.prerequisites.map(esc).join(' · ')}</p><p class="small">${esc(p.complexity)}</p><h3>Java starting template: ${esc(t.title)}</h3><p class="small">This teaches one operation in the family; adapt it to each problem’s constraints.</p><pre>${esc(t.code)}</pre><h3>Closed-book check</h3><p>${esc(p.recall)}</p><div class="actions">${p.questions.map(qid=>button('LC '+qid+' · '+esc(qmap[qid].title),'question',`data-id="${qid}"`)).join('')}</div><p class="small" style="margin-top:16px">Original teaching aid. Practice progresses through related applications, not a claim that one template solves them all.</p>`);}
-const lessonTexts=[
-['Contracts before code','Read the parameter types, return type, mutation rules, and constraints. A return type tells you the kind of result the caller expects; it does not require a separate result variable. List<Integer> may be backed by ArrayList<Integer>. A void method may mutate its input.','boolean even(int n) { return n % 2 == 0; }','For an int[] result, what do its elements represent? Which inputs have no answer?'],
-['One operation at a time','arr.length is a field; s.length() and list.size() are methods. Arrays have fixed length. An ArrayList grows; get is O(1), middle insertion/removal is O(n). HashMap get/put are expected O(1) under well-distributed hashing. ArrayDeque addLast/removeFirst give queue behavior.','List<Integer> a = new ArrayList<>();\na.add(3);\nint first = a.get(0);','How would you remove the Integer value 3 rather than the element at index 3?'],
-['Count how often each operation runs','Enumerating every pair costs n(n−1)/2 checks, which is O(n²). A loop that doubles its index takes O(log n) iterations. Two nested loops are not always quadratic: two pointers that advance at most n times total can be O(n). Count output space separately.','for (int i=0; i<n; i++)\n    for (int j=i+1; j<n; j++)\n        compare(i,j); // n(n−1)/2 comparisons','What changes when n doubles? Can you improve lookup without losing original indices?'],
-['Equality defines a key','HashMap uses equals and hashCode. String keys use content equality; raw array keys use object identity. For Two Sum, check the earlier complement before inserting the current index to avoid using one element twice.','Map<Integer,Integer> seen = new HashMap<>();\n// Query target - current before seen.put(current,index).','Why can inserting first produce an invalid answer when target is twice the current value?'],
-['Merge sort: split, sort, merge','Divide an interval into halves, recursively sort them, then merge by repeatedly taking the smaller head. Invariant: output is sorted and contains the smallest consumed items. Time O(n log n), auxiliary O(n), recursion O(log n). Taking the left item on a tie preserves stability.','merge([1,4],[2,3]):\n1 → 1,2 → 1,2,3 → 1,2,3,4','Why does merging take linear time? Why should both halves be sorted first?'],
-['Partitioning: settle a pivot','Partition into values below and above a pivot, then recurse on each side. Invariant: processed regions satisfy their comparison rules. Quicksort is expected O(n log n) with good/random pivots but O(n²) in the worst case. Recursion space can be O(n) worst-case. Sorting is not automatically stable.','[4,1,3,2], pivot 2 → [1] [2] [4,3]\nThen sort the remaining partitions.','What happens if you always pick an extreme pivot in an already sorted array?'],
-['A recursive call owns a frame','Each call stores parameters, locals, and where execution resumes. Define the base case, the smaller subproblem, and how returned facts combine. For backtracking, undo mutable choices before a sibling call. For graphs, track visited nodes.','height(null)=0\nheight(node)=1+max(height(left),height(right))','Trace the returns for a root with two leaves. Why is height different from diameter?']];
-function lessonModal(index,day){index=Math.max(0,Math.min(6,index));const [title,text,code,recall]=lessonTexts[index];const d=day||today();openModal(`<span class="eyebrow">FOUNDATION ${index+1} / 7</span><h2>${title}</h2><p>${text}</p><pre>${esc(code)}</pre><h3>Recall without looking</h3><p>${recall}</p><form id="mission-form" data-day="${d}" data-kind="lesson" data-index="${index}"><label>Your learning entry<textarea name="note" required minlength="3">${esc((state.lessonNotes||{})[index]||'')}</textarea></label><button class="primary">Save lesson entry</button></form><div class="tabs">${lessonTexts.map((x,i)=>button(String(i+1),'lesson',`data-index="${i}" data-day="${d}"`)).join('')}</div>`);}
+const lessonTexts = [
+  {
+    "title": "Read a problem and trace a small array",
+    "bridge": "Start here if Java feels familiar but you have not solved problems for a while.",
+    "text": "Before writing code, identify the input, the result to return, and any special rules. An array index is a position starting at 0. A value is the number stored at that position. A method can return an expression directly; it does not need a separate answer variable.",
+    "task": "Write int firstIndexOf(int[] nums, int target). Return the first index containing target, or -1 if it is absent. Assume nums is not null. Do not change the array. An empty array is allowed.",
+    "example": "nums = [8, 3, 8], target = 8 → 0, because the first 8 is at index 0.\nnums = [8, 3, 8], target = 5 → -1.\nnums = [], target = 8 → -1.",
+    "steps": [
+      "Trace the example by hand. Write down each index and its value.",
+      "Write a loop that visits valid indices. What condition means you found the target?",
+      "Decide where to return -1 so the entire array gets a chance to be checked."
+    ],
+    "hints": [
+      "Use i < nums.length: the final valid index is nums.length - 1.",
+      "Return i as soon as nums[i] equals target. Put return -1 after the loop."
+    ],
+    "code": "int firstIndexOf(int[] nums, int target) {\n    for (int i = 0; i < nums.length; i++) {\n        if (nums[i] == target) return i;\n    }\n    return -1;\n}",
+    "answer": "Returning immediately selects the first match. If the loop finishes, no match exists. An empty array skips the loop. Worst-case time is O(n): you inspect at most n elements. Extra space is O(1): only a fixed number of variables is needed.",
+    "recall": "Why do we return i rather than nums[i]? Why would returning -1 inside the loop be wrong?",
+    "next": "You are ready to continue when you can trace a match, a missing target, and an empty array."
+  },
+  {
+    "title": "Refresh arrays, strings, and growing lists",
+    "bridge": "Use the same left-to-right traversal from lesson 1, but now collect several answers.",
+    "text": "An array has a fixed length; use nums.length. A String uses text.length(). An ArrayList can grow; use list.size(), list.add(value), and list.get(index). List<Integer> stores integer values through Java boxing. Use import java.util.*; for the collection examples.",
+    "task": "Write List<Integer> collectEven(int[] nums). Return every even value in its original order, including duplicates. Return an empty list if no values qualify. Assume nums is not null and leave it unchanged.",
+    "example": "[5, 2, 4, 2] → [2, 4, 2]\n[3, 7] → []\n[-2, 0, 3] → [-2, 0] (zero and negative even numbers count).",
+    "steps": [
+      "Create an empty result list.",
+      "Visit each number and check whether dividing it by 2 leaves remainder 0.",
+      "Add qualifying values, then return the list after the loop."
+    ],
+    "hints": [
+      "The remainder check is value % 2 == 0.",
+      "Use result.add(value), not result.add(index). The result contains values, not positions."
+    ],
+    "code": "List<Integer> collectEven(int[] nums) {\n    List<Integer> result = new ArrayList<>();\n    for (int value : nums) {\n        if (value % 2 == 0) result.add(value);\n    }\n    return result;\n}",
+    "answer": "Each input value is checked once: O(n) time, with amortized constant-time appends. The returned list holds k qualifying values, so output space is O(k); other extra space is O(1). Java detail to revisit: list.remove(3) removes index 3, while list.remove(Integer.valueOf(3)) removes the first matching value 3.",
+    "recall": "Why is a growing list useful here? What would happen if you returned the result from inside the loop?",
+    "next": "Continue when you can choose between a fixed array and a list, and distinguish a value from an index."
+  },
+  {
+    "title": "Understand time complexity by counting work",
+    "bridge": "You have used one scan. Now compare it with checking pairs of elements.",
+    "text": "Time complexity describes how work grows with input size n, not an exact number of seconds. One full scan is O(n). Checking all distinct pairs is O(n²). Big O ignores constant factors and smaller terms when describing growth.",
+    "task": "For nums = [4, 7, 9, 2], list every pair of indices (i, j) where i < j. Then count the comparisons made by the code below. Do not try to optimize it yet.",
+    "example": "Start with (0, 1), (0, 2), (0, 3). Continue from i = 1.\nPairs use two different positions. (0, 1) and (1, 0) are the same pair for this exercise.",
+    "steps": [
+      "Count the pairs starting at each i.",
+      "Repeat the count for an array of length 5.",
+      "Compare how a single scan and a pair scan grow as n gets large."
+    ],
+    "hints": [
+      "For length 4, the inner loop runs 3, then 2, then 1, then 0 times.",
+      "For length n, the total is (n - 1) + (n - 2) + ... + 1 = n(n - 1)/2."
+    ],
+    "code": "for (int i = 0; i < nums.length; i++) {\n    for (int j = i + 1; j < nums.length; j++) {\n        System.out.println(i + \", \" + j);\n    }\n}",
+    "answer": "Length 4 produces 6 pairs: (0,1), (0,2), (0,3), (1,2), (1,3), (2,3). Length 5 produces 10. The quadratic term gives O(n²) time. Doubling a large n gives roughly four times as many pairs. A single scan roughly doubles. Nested loops are not automatically quadratic: count their total iterations.",
+    "recall": "Explain O(n) versus O(n²) in your own words. If pairs are printed rather than stored, does this code need an O(n²) result array?",
+    "next": "Continue when you can count loop work without guessing from the number of loops."
+  },
+  {
+    "title": "Remember earlier values with a HashMap",
+    "bridge": "Lesson 3 checked all pairs. Now use stored information to avoid repeatedly searching for a partner.",
+    "text": "A HashMap stores key–value associations. For this exercise, the key is a number already seen and the value is its index. containsKey checks whether a key exists, get retrieves its value, and put saves an association. These operations take expected O(1) time with well-distributed hashing.",
+    "task": "Write int[] twoSum(int[] nums, int target). Return the indices of two different elements whose values add to target. Assume exactly one valid pair exists and nums is not null. You may return the two indices in either order.",
+    "example": "nums = [3, 2, 4], target = 6 → [1, 2], because 2 + 4 = 6.\nnums = [3, 3], target = 6 → [0, 1]. One position cannot be used twice.",
+    "steps": [
+      "First describe how the pair loop from lesson 3 would solve this.",
+      "At each value, calculate the missing partner: target - current.",
+      "Check whether that partner appeared earlier. If it did not, remember the current value and index."
+    ],
+    "hints": [
+      "With current = 2 and target = 6, look for a previously seen 4.",
+      "Check before inserting the current element. Otherwise an element could match itself."
+    ],
+    "code": "int[] twoSum(int[] nums, int target) {\n    Map<Integer, Integer> seen = new HashMap<>();\n    for (int i = 0; i < nums.length; i++) {\n        int needed = target - nums[i];\n        if (seen.containsKey(needed)) {\n            return new int[]{seen.get(needed), i};\n        }\n        seen.put(nums[i], i);\n    }\n    throw new IllegalArgumentException(\"No valid pair\");\n}",
+    "answer": "Only earlier indices are in the map, so the two positions are different. For [3,3], the first 3 is stored before the second 3 finds it. Expected time is O(n), with O(n) extra space. The final exception covers input outside the stated guarantee. Assume values are small enough that target - nums[i] fits in int for this exercise.",
+    "recall": "Trace the map for [3, 2, 4]. Why does storing an index help us return the requested result?",
+    "next": "Continue when you can explain the space-for-time tradeoff and why lookup happens before insertion."
+  },
+  {
+    "title": "Rebuild recursion with a small trace",
+    "bridge": "Before recursive sorting, practise one function calling a smaller version of itself.",
+    "text": "A recursive method calls itself with a smaller problem. The base case stops the calls. Each call keeps its own parameters and waits for the smaller call to return. Start by tracing calls and returns; writing recursive code comes next.",
+    "task": "Trace sumTo(3) in the code below. It returns the sum of integers from 1 through n, with sumTo(0) = 0. Assume 0 <= n <= 100. Then cover the code and write it yourself.",
+    "example": "sumTo(3) = 3 + 2 + 1 = 6\nsumTo(1) = 1\nsumTo(0) = 0",
+    "steps": [
+      "Write the calls going down: sumTo(3), sumTo(2), and so on.",
+      "Find the call that can answer without another recursive call.",
+      "Work back up, substituting each returned value into its waiting caller."
+    ],
+    "hints": [
+      "The smallest problem is n == 0. It returns 0 immediately.",
+      "sumTo(2) waits for sumTo(1), then adds 2 to that returned answer."
+    ],
+    "code": "int sumTo(int n) {\n    if (n == 0) return 0;\n    return n + sumTo(n - 1);\n}",
+    "answer": "Calls descend through 3, 2, 1, 0. Returned answers are 0, 1, 3, 6. Each call makes progress by subtracting 1. Time is O(n), and the call stack uses O(n) space. An iterative sum can use O(1) extra space; recursion is being used here to practise the idea. Very deep recursion can overflow the Java stack.",
+    "recall": "What goes wrong if the recursive call uses n instead of n - 1? What stops the calls?",
+    "next": "Continue when you can explain both the calls going down and the answers coming back up."
+  },
+  {
+    "title": "Merge sorted arrays, then understand merge sort",
+    "bridge": "Apply array traversal from lesson 1 and the smaller-problem idea from lesson 5.",
+    "text": "First practise merging. Two pointers are simply two indices tracking your current position in two arrays. If both arrays are sorted, the smaller current value is the next value to copy. Merge sort first splits an array into smaller parts, sorts those parts, then uses this merge operation.",
+    "task": "Write int[] mergeSorted(int[] left, int[] right) for two non-null arrays already sorted in ascending order. Return a new sorted array containing all values, including duplicates. Either input may be empty.",
+    "example": "left = [1, 4], right = [2, 3] → [1, 2, 3, 4]\nleft = [], right = [2, 2] → [2, 2]",
+    "steps": [
+      "Compare the two current values and copy the smaller one.",
+      "Advance only the pointer for the value you copied.",
+      "When one array runs out, copy everything remaining in the other."
+    ],
+    "hints": [
+      "Use i for left, j for right, and k for the output position.",
+      "The main loop needs both pointers to be in bounds. Two later loops handle leftovers."
+    ],
+    "code": "int[] mergeSorted(int[] left, int[] right) {\n    int[] out = new int[left.length + right.length];\n    int i = 0, j = 0, k = 0;\n    while (i < left.length && j < right.length) {\n        if (left[i] <= right[j]) out[k++] = left[i++];\n        else out[k++] = right[j++];\n    }\n    while (i < left.length) out[k++] = left[i++];\n    while (j < right.length) out[k++] = right[j++];\n    return out;\n}",
+    "answer": "Every value is copied once, so merging takes O(a + b) time and O(a + b) output space. For merge sort, stop splitting at size 0 or 1. Each split level does O(n) merging work, and there are O(log n) levels: O(n log n) time. A standard array implementation uses O(n) auxiliary storage plus O(log n) stack depth. Choosing the left value on ties preserves equal items’ relative order in a stable merge sort.",
+    "recall": "Why must the input halves already be sorted? Trace what happens after the right array runs out.",
+    "next": "Continue when you can merge by hand and explain how recursive sorting produces sorted halves."
+  },
+  {
+    "title": "Understand a pivot before coding quicksort",
+    "bridge": "Compare another recursive sorting idea with merge sort. Begin with a hand trace, then implement partitioning.",
+    "text": "A pivot is a chosen value used to divide an array. Partitioning moves smaller values to one side and larger values to the other; it does not fully sort those sides. Quicksort then sorts each side recursively. An invariant means a rule that stays true as a loop runs.",
+    "task": "Trace the partition method below for nums = [4, 1, 3, 2], low = 0, high = 3. The last value is the pivot. Track i, j, and the array after each swap. Return the pivot’s final index. Assume 0 <= low <= high < nums.length.",
+    "example": "Starting array: [4, 1, 3, 2]; pivot = 2.\nOne partition produces [1, 2, 3, 4], with pivot index 1. This example happens to become sorted, but partitioning does not guarantee that.",
+    "steps": [
+      "Start i at low. It marks the next position for a value smaller than the pivot.",
+      "Scan with j, excluding the pivot. When a value is smaller, swap it into position i and increment i.",
+      "Finally swap the pivot into position i. Which ranges still need recursive sorting?"
+    ],
+    "hints": [
+      "Before each scan step, nums[low..i-1] contains values smaller than the pivot.",
+      "Recurse on low..p-1 and p+1..high. Stop when low >= high. The pivot must be excluded."
+    ],
+    "code": "int partition(int[] nums, int low, int high) {\n    int pivot = nums[high];\n    int i = low;\n    for (int j = low; j < high; j++) {\n        if (nums[j] < pivot) {\n            int temp = nums[i];\n            nums[i] = nums[j];\n            nums[j] = temp;\n            i++;\n        }\n    }\n    int temp = nums[i];\n    nums[i] = nums[high];\n    nums[high] = temp;\n    return i;\n}",
+    "answer": "Only 1 is moved into the smaller region, giving [1,4,3,2]. The final swap gives [1,2,3,4] and returns 1. One partition takes O(m) time for a range of m values and O(1) extra space. Balanced quicksort splits lead to O(n log n) time; repeatedly extreme pivots lead to O(n²). This last-element choice performs badly on sorted or all-equal inputs. Randomized pivots give expected O(n log n) for distinct keys; many duplicates benefit from three-way partitioning. Recursive stack space is O(log n) for balanced splits and O(n) in the worst case.",
+    "recall": "Trace [3, 2, 1, 4]. Is the left side sorted after partitioning? Why do recursive calls exclude the pivot?",
+    "next": "You have finished the foundation sequence. Revisit any trace you cannot explain, then apply these ideas to the main problem catalogue."
+  }
+];
+function lessonModal(index,day){
+ index=Number.isFinite(index)?Math.max(0,Math.min(lessonTexts.length-1,index)):0;
+ const lesson=lessonTexts[index],d=day||today();
+ openModal(`<span class="eyebrow">FOUNDATION ${index+1} / ${lessonTexts.length}</span>
+ <h2>${esc(lesson.title)}</h2><p class="muted">${esc(lesson.bridge)}</p>
+ <p class="small">Work at your own pace. Try the exercise before opening hints or the answer. Existing saved entries are kept; if you used the earlier lesson order, add a fresh note below your old one.</p>
+ <h3>Quick refresher</h3><p>${esc(lesson.text)}</p>
+ <h3>Your exercise</h3><p>${esc(lesson.task)}</p><pre>${esc(lesson.example)}</pre>
+ <h3>Work through it</h3><ol>${lesson.steps.map(x=>`<li>${esc(x)}</li>`).join('')}</ol>
+ ${index===2||index===4||index===6?`<h3>Code to trace</h3><pre>${esc(lesson.code)}</pre>`:''}
+ <details><summary>Need a nudge?</summary>${lesson.hints.map((x,i)=>`<details><summary>Hint ${i+1}</summary><p>${esc(x)}</p></details>`).join('')}</details>
+ <details><summary>Check your reasoning after trying</summary>${index===2||index===4||index===6?'':`<pre>${esc(lesson.code)}</pre>`}<p>${esc(lesson.answer)}</p></details>
+ <h3>Explain it in your own words</h3><p>${esc(lesson.recall)}</p><p class="small">${esc(lesson.next)}</p>
+ <form id="mission-form" data-day="${d}" data-kind="lesson" data-index="${index}"><label>Your attempt and takeaway<textarea name="note" required minlength="3" placeholder="My trace or approach:&#10;What I understood:&#10;What I still need to practise:">${esc((state.lessonNotes||{})[index]||'')}</textarea></label><button class="primary">Save lesson entry</button></form>
+ <div class="tabs">${lessonTexts.map((x,i)=>button(`${i+1}. ${esc(x.title)}`,'lesson',`data-index="${i}" data-day="${d}"`,i===index?'primary':'')).join('')}</div>`);
+}
 function missionModal(day,kind){openModal(`<h2>${kind==='warmup'?'Recall before you look':'Close the loop'}</h2><p>${kind==='warmup'?'Explain a recent invariant, method contract, or mistake from memory. On day one, describe what an input and return value mean.':'What did you learn, what remains unclear, and what will you try next?'}</p><form id="mission-form" data-day="${day}" data-kind="${kind}"><label>Learning entry<textarea name="note" required minlength="3">${esc(state.missions[day]?.[kind]||'')}</textarea></label><button class="primary">Save entry</button></form>`);}
 function cardModal(cid,hidden=false){const k=[...knowledge,...state.cards].find(k=>k.id===cid);if(!k)return;openModal(`<span class="eyebrow">${esc(k.kind)} CARD</span><h2>${esc(k.title)}</h2><p>${esc(k.recall)}</p>${hidden?`<label>Your recalled explanation<textarea id="card-recall"></textarea></label>${button('Reveal card','card-reveal',`data-id="${esc(cid)}"`)}`:`<p>${esc(k.explanation)}</p><pre>${esc(k.example)}</pre><h3>Use it when</h3><p>${esc(k.use)}</p><h3>Watch the limit</h3><p>${esc(k.fail)}</p>${k.question?button('Practice LC '+k.question,'question',`data-id="${k.question}"`):''}<p class="small" style="margin-top:16px">${esc(k.source)} ${k.sourceUrl?`<a href="${esc(k.sourceUrl)}" target="_blank" rel="noopener noreferrer">Reference ↗</a>`:''}</p>`}`);}
 function templatesModal(){openModal(`<span class="eyebrow">JAVA 17</span><h2>34 starting templates</h2><p class="small">Original code. Each template is a standalone class with imports. Adapt input contracts; there is no Java execution in this browser.</p>${templates.map(t=>`<details><summary>${esc(t.title)}</summary><p class="small">${esc(t.complexity)}</p><pre>${esc(t.code)}</pre>${button('Practice LC '+t.question,'question',`data-id="${t.question}"`)}</details>`).join('')}`);}
 const visuals={two:{title:'Two pointers · target 9',cells:['1','2','4','7'],states:[{active:[0,3],text:'left=0, right=3. Sum 1+7=8 is too small; all smaller right endpoints also fail for left=0.'},{active:[1,3],text:'Move left to 1. Sum 2+7=9. Found the pair; the sorted order justified the move.'}]},window:{title:'Distinct-character window',cells:['a','b','c','a'],states:[{active:[0],text:'left=0, right=0. Add a; window length 1.'},{active:[0,1],text:'Add b. Both characters are distinct; best=2.'},{active:[0,1,2],text:'Add c. Window abc; best=3.'},{active:[1,2,3],text:'A second a arrives. Move left past the earlier a. Window bca; best remains 3.'}]},binary:{title:'Lower bound · target 3',cells:['1','3','3','8'],states:[{active:[2],text:'lo=0, hi=4, mid=2. a[mid]=3, so hi=2; preserve the first possible index.'},{active:[1],text:'lo=0, hi=2, mid=1. a[mid]=3, so hi=1.'},{active:[0],text:'lo=0, hi=1, mid=0. a[mid]=1 is too small, so lo=1.'},{active:[1],text:'lo=hi=1. Lower bound is index 1.'}]},stack:{title:'Monotonic stack · next warmer day',cells:['70','72','71','75'],states:[{active:[0],text:'Stack of unresolved indices: [0]. No warmer day yet.'},{active:[1],visited:[0],text:'72 > 70. Pop index 0; answer[0]=1. Stack=[1].'},{active:[1,2],visited:[0],text:'71 is not warmer than 72. Push 2; stack=[1,2].'},{active:[3],visited:[0,1,2],text:'75 resolves indices 2 and 1. Waits=[1,2,1,0]; stack=[3].'}]},bfs:{title:'BFS · graph 0—1, 0—2, 1—3',cells:['0','1','2','3'],states:[{active:[0],text:'queue=[0], distances=[0,−1,−1,−1]. Source is marked on enqueue.'},{active:[1,2],visited:[0],text:'Pop 0. Discover 1 and 2 at distance 1. queue=[1,2].'},{active:[2,3],visited:[0,1],text:'Pop 1. Discover 3 at distance 2. queue=[2,3].'},{active:[3],visited:[0,1,2],text:'Pop 2. No new nodes. queue=[3].'},{active:[],visited:[0,1,2,3],text:'Pop 3. Queue empty; final distances [0,1,1,2]. Equal-cost edges make these shortest hop counts.'}]},dp:{title:'DP · ways to climb 4 stairs',cells:['dp[0]=1','dp[1]=1','dp[2]=?','dp[3]=?','dp[4]=?'],states:[{active:[0,1],text:'Base cases: one empty path for zero stairs, one way for one stair.'},{active:[2],values:['dp[0]=1','dp[1]=1','dp[2]=2','dp[3]=?','dp[4]=?'],text:'dp[2]=dp[1]+dp[0]=2. Last step has size 1 or 2.'},{active:[3],values:['dp[0]=1','dp[1]=1','dp[2]=2','dp[3]=3','dp[4]=?'],text:'dp[3]=2+1=3. Dependencies are already filled.'},{active:[4],values:['dp[0]=1','dp[1]=1','dp[2]=2','dp[3]=3','dp[4]=5'],text:'dp[4]=3+2=5. Only the previous two counts were needed.'}]}};
 function visualization(){const v=visuals[vizType],s=v.states[vizIndex];openModal(`<span class="eyebrow">STEP-THROUGH LAB</span><h2>${v.title}</h2><label>Algorithm<select id="viz-type">${options(Object.entries(visuals).map(([k,v])=>[k,v.title]),vizType)}</select></label><div class="viz-cells">${(s.values||v.cells).map((x,i)=>`<span class="viz-cell ${s.active.includes(i)?'active':''} ${s.visited?.includes(i)?'visited':''}">${esc(x)}</span>`).join('')}</div><p aria-live="polite">${s.text}</p><p class="small">Step ${vizIndex+1} of ${v.states.length}. Highlight = current state; purple = visited.</p><div class="actions">${button('Reset','viz-reset')}${button('Step','viz-step')}${button(vizTimer?'Pause':'Play','viz-play')}</div>`);}
-function dayModal(date){const d=state.plan.find(d=>d.date===date);openModal(`<span class="eyebrow">${date} · DAY ${d.number}</span><h2>${d.light?'Review & catch-up':'Your study plan'}</h2><p>${d.total} estimated / ${d.capacity} available min · ${d.reviewMinutes} min reserved for review and notes</p>${d.overflow?`<p class="warn">${d.overflow} minutes over this day’s capacity. Review catch-up or adjust study time.</p>`:''}${d.lesson?`<p>Prerequisite: ${esc(d.lesson)}</p>${button('Open lesson','lesson',`data-index="${d.number-1}" data-day="${date}"`)}`:''}${d.questions.map(i=>questionRow(qmap[i])).join('')}${!d.questions.length?'<p class="muted">No first attempts assigned. Recall, due reviews, and weak-pattern repair remain available.</p>':''}${d.mock?'<p>Scheduled: 60-minute, two-question mock.</p>':''}<div class="actions" style="margin-top:20px">${button('Reschedule a question','reschedule',`data-date="${date}"`)}${button('Pause this day','pause',`data-date="${date}"`)}</div>`);}
+function dayModal(date){const d=state.plan.find(d=>d.date===date);openModal(`<span class="eyebrow">${date} · DAY ${d.number}</span><h2>${d.light?'Review & catch-up':'Your study plan'}</h2><p>${d.total} estimated / ${d.capacity} available min · ${d.reviewMinutes} min reserved for review and notes</p>${d.overflow?`<p class="warn">${d.overflow} minutes over this day’s capacity. Review catch-up or adjust study time.</p>`:''}${d.lesson?`<p>Prerequisite: ${esc(lessonTexts[d.number-1]?.title||d.lesson)}</p>${button('Open lesson','lesson',`data-index="${d.number-1}" data-day="${date}"`)}`:''}${d.questions.map(i=>questionRow(qmap[i])).join('')}${!d.questions.length?'<p class="muted">No first attempts assigned. Recall, due reviews, and weak-pattern repair remain available.</p>':''}${d.mock?'<p>Scheduled: 60-minute, two-question mock.</p>':''}<div class="actions" style="margin-top:20px">${button('Reschedule a question','reschedule',`data-date="${date}"`)}${button('Pause this day','pause',`data-date="${date}"`)}</div>`);}
 function catchupModal(){catchPreview=catchUp(state.plan,questions,state,today());openModal(`<span class="eyebrow">REVIEW BEFORE APPLYING</span><h2>Catch-up proposal</h2><p>Keep the original target date, existing attempts, and the final revision window. Pending first attempts move into available pre-day-78 capacity. Reviews keep their own due dates.</p><p class="${catchPreview.unresolved.length?'warn':'good'}">${catchPreview.unresolved.length} questions remain outside available capacity.</p>${catchPreview.days.filter(d=>d.assigned.length).map(d=>`<p class="small">${d.date}: ${d.assigned.map(i=>'LC '+i).join(', ')} · ${fmt(d.capacity-d.free)} min including reservations</p>`).join('')}${catchPreview.unresolved.length?`<details open><summary>Unresolved backlog</summary><p>${catchPreview.unresolved.map(i=>'LC '+i).join(', ')}</p><p class="small">Increase available minutes explicitly, or focus on a reduced subset while retaining the full backlog. The deadline will not move automatically.</p></details>`:''}<div class="actions">${button('Apply proposal','catchup-apply','','primary')}${button('Edit available time','onboard')}</div>`);}
 function timerStop(){const t=state.timer;if(!t)return;if(t.kind==='break'){mutate(s=>{if(s.timer?.id===t.id)s.timer=null;}).then(closeModal);return;}const end=Date.now(),elapsed=Math.max(0,(end-t.started)/60000);openModal(`<h2>Confirm focused study</h2><p>${fmt(elapsed)} minutes elapsed. Count only time you actually studied. ${elapsed>120?'This interval was long; it starts with zero credited minutes.':''}</p><form id="timer-form" data-id="${t.id}" data-end="${end}"><label>Confirmed focused minutes<input name="minutes" type="number" min="0" max="${elapsed.toFixed(2)}" step="0.01" value="${elapsed>120?0:Math.min(elapsed,t.duration/60000).toFixed(2)}" required></label><label>Correction reason<textarea name="reason" placeholder="Break, away from desk, browser left open…"></textarea></label><button class="primary">Confirm & stop session</button></form><p class="small">Time is split across actual study dates. A confirmed timer does not earn a learning streak by itself.</p>`);}
 function mockStart(){if(activeMock()){closeModal();location.hash='mocks';return;}const eligible=questions.filter(q=>q.tier==='Core'&&q.difficulty!=='Hard'&&(attempted(q.id)||state.plan.some(d=>d.date<=today()&&d.questions.includes(q.id))));openModal(`<h2>Set up a mixed mock</h2><p>Choose from ${eligible.length} eligible core questions. Eligibility: already attempted or scheduled through today.</p><form id="mock-form"><label>First question<select name="q1" required>${options(eligible.map(q=>[q.id,'LC '+q.id+' · '+q.title]),eligible[0]?.id)}</select></label><label>Second question<select name="q2" required>${options(eligible.map(q=>[q.id,'LC '+q.id+' · '+q.title]),eligible.find(q=>q.pattern!==eligible[0]?.pattern)?.id||eligible[1]?.id)}</select></label><label>Minutes<input type="number" min="10" max="180" name="minutes" value="60" required></label><label>Optional unseen LeetCode problem URL<input type="url" name="custom" placeholder="https://leetcode.com/problems/…/"></label><button class="primary" ${eligible.length<2?'disabled':''}>Start timed mock</button></form>${eligible.length<2?'<p class="small">Attempt more core questions to unlock a mixed mock.</p>':''}`);}
