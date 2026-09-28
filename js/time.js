@@ -1,0 +1,8 @@
+export const dayKey=(instant=Date.now(),zone='Asia/Kolkata')=>{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date(instant)).map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`;};
+const tuple=s=>s.split('-').map(Number);
+export function addDays(s,n){const [y,m,d]=tuple(s),v=new Date(Date.UTC(y,m-1,d+n));return `${v.getUTCFullYear()}-${String(v.getUTCMonth()+1).padStart(2,'0')}-${String(v.getUTCDate()).padStart(2,'0')}`;}
+export function difference(a,b){const x=tuple(a),y=tuple(b);return Math.round((Date.UTC(x[0],x[1]-1,x[2])-Date.UTC(y[0],y[1]-1,y[2]))/86400000);}
+export function weekday(s){const [y,m,d]=tuple(s);return new Date(Date.UTC(y,m-1,d)).getUTCDay();}
+export function validDate(s){return typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&addDays(s,0)===s;}
+export function streak(events,today){const dates=new Set(events.filter(e=>e.credit&&e.note?.trim()).map(e=>e.day));let cursor=dates.has(today)?today:addDays(today,-1),count=0;while(dates.has(cursor)){count++;cursor=addDays(cursor,-1);}return {count,pending:count>0&&!dates.has(today)};}
+export function splitSession(start,end,zone){if(end<=start)return [];let cur=start,out=[];while(cur<end){let stop=Math.min(end,cur+6*3600000),key=dayKey(cur,zone);if(dayKey(stop-1,zone)!==key){let lo=cur,hi=stop;while(hi-lo>1){const mid=Math.floor((lo+hi)/2);if(dayKey(mid,zone)===key)lo=mid;else hi=mid;}stop=hi;}const last=out.at(-1);if(last?.day===key)last.ms+=stop-cur;else out.push({day:key,ms:stop-cur});cur=stop;}return out;}

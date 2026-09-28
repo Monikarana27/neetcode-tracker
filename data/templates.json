@@ -1,0 +1,274 @@
+[
+  {
+    "id": "hash",
+    "title": "Earlier complement",
+    "question": 1,
+    "complexity": "Expected O(n) time / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_hash {\nstatic int[] twoSum(int[] a, int target) {\n    Map<Integer,Integer> seen = new HashMap<>();\n    for (int i=0;i<a.length;i++) {\n        // Look up first: do not reuse the current element.\n        long need = (long)target-a[i];\n        if (need>=Integer.MIN_VALUE && need<=Integer.MAX_VALUE && seen.containsKey((int)need))\n            return new int[]{seen.get((int)need),i};\n        seen.put(a[i],i);\n    }\n    return new int[0];\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "prefix",
+    "title": "Half-open prefix sums",
+    "question": 303,
+    "complexity": "O(n) build / O(1) query / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_prefix {\nstatic long[] prefixes(int[] a) {\n    long[] p = new long[a.length+1];\n    for(int i=0;i<a.length;i++) p[i+1]=p[i]+a[i];\n    return p; // Sum of [l,r) is p[r]-p[l].\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "two",
+    "title": "Sorted pair search",
+    "question": 167,
+    "complexity": "O(n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_two {\nstatic int[] pair(int[] sorted, long target) {\n    int l=0,r=sorted.length-1;\n    while(l<r) {\n        long sum=(long)sorted[l]+sorted[r];\n        if(sum==target) return new int[]{l,r};\n        if(sum<target) l++; else r--;\n    }\n    return new int[0]; // Zero-based indices; input must be sorted.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "window",
+    "title": "Longest distinct UTF-16 window",
+    "question": 3,
+    "complexity": "O(n) expected time / O(alphabet) space",
+    "code": "import java.util.*;\n\npublic class Template_window {\nstatic int longest(String s) {\n    Map<Character,Integer> last = new HashMap<>();\n    int left=0,best=0;\n    for(int right=0;right<s.length();right++) {\n        char c=s.charAt(right);\n        if(last.containsKey(c)) left=Math.max(left,last.get(c)+1);\n        last.put(c,right);\n        best=Math.max(best,right-left+1);\n    }\n    return best; // Assumes code units are the desired units.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "deque",
+    "title": "Window maximum",
+    "question": 239,
+    "complexity": "O(n) time / O(k) auxiliary space",
+    "code": "import java.util.*;\n\npublic class Template_deque {\nstatic int[] maximum(int[] a,int k) {\n    if(k<1 || k>a.length) throw new IllegalArgumentException();\n    Deque<Integer> q = new ArrayDeque<>();\n    int[] out=new int[a.length-k+1];\n    for(int i=0;i<a.length;i++) {\n        while(!q.isEmpty() && q.peekFirst()<=i-k) q.removeFirst();\n        while(!q.isEmpty() && a[q.peekLast()]<=a[i]) q.removeLast();\n        q.addLast(i);\n        if(i>=k-1) out[i-k+1]=a[q.peekFirst()];\n    }\n    return out;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "stack",
+    "title": "Balanced delimiters",
+    "question": 20,
+    "complexity": "O(n) time / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_stack {\nstatic boolean valid(String s) {\n    Deque<Character> stack=new ArrayDeque<>();\n    for(char c:s.toCharArray()) {\n        if(c=='(') stack.push(')');\n        else if(c=='[') stack.push(']');\n        else if(c=='{') stack.push('}');\n        else if(stack.isEmpty() || stack.pop()!=c) return false;\n    }\n    return stack.isEmpty(); // Input alphabet: brackets only.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "mono",
+    "title": "Next warmer index",
+    "question": 739,
+    "complexity": "O(n) time / O(n) auxiliary space",
+    "code": "import java.util.*;\n\npublic class Template_mono {\nstatic int[] waits(int[] a) {\n    int[] out=new int[a.length];\n    Deque<Integer> stack=new ArrayDeque<>();\n    for(int i=0;i<a.length;i++) {\n        while(!stack.isEmpty() && a[stack.peek()]<a[i]) {\n            int old=stack.pop(); out[old]=i-old;\n        }\n        stack.push(i);\n    }\n    return out;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "binary",
+    "title": "Lower bound",
+    "question": 35,
+    "complexity": "O(log n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_binary {\nstatic int lowerBound(int[] a,int target) {\n    int lo=0,hi=a.length; // Candidate interval [lo,hi).\n    while(lo<hi) {\n        int mid=lo+(hi-lo)/2;\n        if(a[mid]<target) lo=mid+1; else hi=mid;\n    }\n    return lo; // May equal a.length; a must be sorted.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "answer",
+    "title": "First feasible speed",
+    "question": 875,
+    "complexity": "O(n log maxPile) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_answer {\nstatic int speed(int[] piles,int hours) {\n    int lo=1,hi=0;\n    if(piles.length==0) return 0;\n    if(hours<piles.length) return -1; // Positive piles assumed.\n    for(int x:piles) hi=Math.max(hi,x);\n    while(lo<hi) {\n        int mid=lo+(hi-lo)/2; long needed=0;\n        for(int x:piles) needed+=(x+(long)mid-1)/mid;\n        if(needed<=hours) hi=mid; else lo=mid+1;\n    }\n    return lo;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "list",
+    "title": "Reverse a linked list",
+    "question": 206,
+    "complexity": "O(n) time / O(1) auxiliary space",
+    "code": "import java.util.*;\n\npublic class Template_list {\nstatic class Node { int value; Node next; Node(int x){value=x;} }\nstatic Node reverse(Node head) {\n    Node previous=null;\n    while(head!=null) {\n        Node next=head.next; // Preserve untouched suffix.\n        head.next=previous; previous=head; head=next;\n    }\n    return previous;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "cycle",
+    "title": "Floyd cycle detection",
+    "question": 141,
+    "complexity": "O(n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_cycle {\nstatic class Node { Node next; }\nstatic boolean cyclic(Node head) {\n    Node slow=head,fast=head;\n    while(fast!=null && fast.next!=null) {\n        slow=slow.next; fast=fast.next.next;\n        if(slow==fast) return true;\n    }\n    return false;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "lru",
+    "title": "Access-order bounded map",
+    "question": 146,
+    "complexity": "Expected O(1) operations / O(capacity) space",
+    "code": "import java.util.*;\n\npublic class Template_lru {\nstatic class Cache extends LinkedHashMap<Integer,Integer> {\n    final int capacity;\n    Cache(int capacity) { super(16,0.75f,true); this.capacity=capacity; }\n    protected boolean removeEldestEntry(Map.Entry<Integer,Integer> e) {\n        return size()>capacity;\n    }\n} // Study the doubly linked node implementation as well.\n\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "tree",
+    "title": "Postorder height and diameter",
+    "question": 543,
+    "complexity": "O(n) time / O(height) stack",
+    "code": "import java.util.*;\n\npublic class Template_tree {\nstatic class Node { Node left,right; }\nstatic int height(Node n,int[] diameter) {\n    if(n==null) return 0;\n    int l=height(n.left,diameter),r=height(n.right,diameter);\n    diameter[0]=Math.max(diameter[0],l+r); // Edges through n.\n    return 1+Math.max(l,r); // Height in nodes.\n}\nstatic int diameter(Node root) {\n    int[] best={0}; height(root,best); return best[0];\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "bfs",
+    "title": "Unweighted BFS distances",
+    "question": 994,
+    "complexity": "O(V+E) time / O(V) auxiliary space",
+    "code": "import java.util.*;\n\npublic class Template_bfs {\nstatic int[] distance(List<List<Integer>> graph,int source) {\n    int[] d=new int[graph.size()]; Arrays.fill(d,-1);\n    Deque<Integer> q=new ArrayDeque<>(); q.add(source); d[source]=0;\n    while(!q.isEmpty()) {\n        int u=q.removeFirst();\n        for(int v:graph.get(u)) if(d[v]==-1) {\n            d[v]=d[u]+1; q.addLast(v); // Mark on discovery.\n        }\n    }\n    return d;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "bst",
+    "title": "BST ancestor bounds",
+    "question": 98,
+    "complexity": "O(n) time / O(height) stack",
+    "code": "import java.util.*;\n\npublic class Template_bst {\nstatic class Node { int value; Node left,right; }\nstatic boolean valid(Node n,long lo,long hi) {\n    if(n==null) return true;\n    return lo<n.value && n.value<hi\n        && valid(n.left,lo,n.value) && valid(n.right,n.value,hi);\n} // Call with Long.MIN_VALUE and Long.MAX_VALUE; no duplicates.\n\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "trie",
+    "title": "Lowercase trie",
+    "question": 208,
+    "complexity": "O(word length) per operation / O(total characters) space",
+    "code": "import java.util.*;\n\npublic class Template_trie {\nstatic class Trie {\n    Trie[] child=new Trie[26]; boolean terminal;\n    void add(String s) {\n        Trie node=this;\n        for(char c:s.toCharArray()) {\n            int i=c-'a'; // Contract: a-z only.\n            if(node.child[i]==null) node.child[i]=new Trie();\n            node=node.child[i];\n        }\n        node.terminal=true;\n    }\n    boolean contains(String s) {\n        Trie node=this;\n        for(char c:s.toCharArray()) { node=node.child[c-'a']; if(node==null)return false; }\n        return node.terminal;\n    }\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "heap",
+    "title": "Kth largest through a min-heap",
+    "question": 215,
+    "complexity": "O(n log k) time / O(k) space",
+    "code": "import java.util.*;\n\npublic class Template_heap {\nstatic int kth(int[] a,int k) {\n    if(k<1 || k>a.length) throw new IllegalArgumentException();\n    PriorityQueue<Integer> heap=new PriorityQueue<>();\n    for(int x:a) { heap.offer(x); if(heap.size()>k) heap.poll(); }\n    return heap.peek();\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "median",
+    "title": "Two-heap streaming median",
+    "question": 295,
+    "complexity": "O(log n) insertion / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_median {\nstatic class Median {\n    PriorityQueue<Integer> low=new PriorityQueue<>(Comparator.reverseOrder());\n    PriorityQueue<Integer> high=new PriorityQueue<>();\n    void add(int x) {\n        low.offer(x); high.offer(low.poll());\n        if(high.size()>low.size()) low.offer(high.poll());\n    }\n    double value() {\n        if(low.isEmpty()) throw new IllegalStateException();\n        return low.size()>high.size()?low.peek():((long)low.peek()+high.peek())/2.0;\n    }\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "backtrack",
+    "title": "Subsets with copied paths",
+    "question": 78,
+    "complexity": "O(n\u00b72^n) output/time / O(n) recursion aside from output",
+    "code": "import java.util.*;\n\npublic class Template_backtrack {\nstatic void subsets(int[] a,int start,List<Integer> path,List<List<Integer>> out) {\n    out.add(new ArrayList<>(path));\n    for(int i=start;i<a.length;i++) {\n        path.add(a[i]); subsets(a,i+1,path,out); path.remove(path.size()-1);\n    }\n} // Call with start 0 and empty lists. Distinct input values assumed.\n\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "topo",
+    "title": "Kahn topological sort",
+    "question": 210,
+    "complexity": "O(V+E) time/space",
+    "code": "import java.util.*;\n\npublic class Template_topo {\nstatic List<Integer> order(List<List<Integer>> g) {\n    int[] degree=new int[g.size()];\n    for(List<Integer> edges:g) for(int v:edges) degree[v]++;\n    Deque<Integer> q=new ArrayDeque<>();\n    for(int i=0;i<degree.length;i++) if(degree[i]==0) q.add(i);\n    List<Integer> out=new ArrayList<>();\n    while(!q.isEmpty()) {\n        int u=q.remove(); out.add(u);\n        for(int v:g.get(u)) if(--degree[v]==0) q.add(v);\n    }\n    return out.size()==g.size()?out:List.of(); // Empty on cycle.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "dsu",
+    "title": "Union by size with path compression",
+    "question": 684,
+    "complexity": "Amortized O(\u03b1(n)) per operation / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_dsu {\nstatic class DSU {\n    int[] parent,size;\n    DSU(int n){parent=new int[n];size=new int[n];for(int i=0;i<n;i++){parent[i]=i;size[i]=1;}}\n    int find(int x){while(x!=parent[x]){parent[x]=parent[parent[x]];x=parent[x];}return x;}\n    boolean union(int a,int b){\n        a=find(a);b=find(b);if(a==b)return false;\n        if(size[a]<size[b]){int t=a;a=b;b=t;}\n        parent[b]=a;size[a]+=size[b];return true;\n    }\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "dijkstra",
+    "title": "Nonnegative Dijkstra",
+    "question": 743,
+    "complexity": "O((V+E) log V) for simple graph / O(V+E) space",
+    "code": "import java.util.*;\n\npublic class Template_dijkstra {\nstatic long[] shortest(List<List<int[]>> g,int source) {\n    long inf=Long.MAX_VALUE/4; long[] d=new long[g.size()]; Arrays.fill(d,inf);\n    PriorityQueue<long[]> q=new PriorityQueue<>((a,b)->Long.compare(a[0],b[0]));\n    d[source]=0;q.offer(new long[]{0,source});\n    while(!q.isEmpty()) {\n        long[] item=q.poll(); int u=(int)item[1];if(item[0]!=d[u])continue;\n        for(int[] edge:g.get(u)) {\n            int v=edge[0],w=edge[1];if(w<0)throw new IllegalArgumentException();\n            if(d[u]+w<d[v]){d[v]=d[u]+w;q.offer(new long[]{d[v],v});}\n        }\n    }\n    return d; // Each edge is {to, nonnegativeWeight}.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "dp",
+    "title": "Rolling staircase recurrence",
+    "question": 70,
+    "complexity": "O(n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_dp {\nstatic long stairs(int n) {\n    if(n<0 || n>91) throw new IllegalArgumentException();\n    long before=1,current=1;\n    for(int i=2;i<=n;i++){long next=before+current;before=current;current=next;}\n    return current; // ways(0)=1; long still has finite range.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "knapsack",
+    "title": "Unbounded minimum coin count",
+    "question": 322,
+    "complexity": "O(coins\u00b7amount) time / O(amount) space",
+    "code": "import java.util.*;\n\npublic class Template_knapsack {\nstatic int coins(int[] coins,int amount) {\n    int[] dp=new int[amount+1];Arrays.fill(dp,amount+1);dp[0]=0;\n    for(int total=1;total<=amount;total++) for(int coin:coins) {\n        if(coin<=0)throw new IllegalArgumentException();\n        if(coin<=total)dp[total]=Math.min(dp[total],dp[total-coin]+1);\n    }\n    return dp[amount]>amount?-1:dp[amount];\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "grid",
+    "title": "Grid paths with obstacles",
+    "question": 62,
+    "complexity": "O(rows\u00b7cols) time / O(cols) space",
+    "code": "import java.util.*;\n\npublic class Template_grid {\nstatic long paths(int[][] blocked) {\n    if(blocked.length==0 || blocked[0].length==0)return 0;\n    long[] dp=new long[blocked[0].length];dp[0]=1;\n    for(int[] row:blocked) for(int c=0;c<row.length;c++) {\n        if(row[c]==1)dp[c]=0;else if(c>0)dp[c]+=dp[c-1];\n    }\n    return dp[dp.length-1]; // Rectangular grid; counts must fit long.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "lcs",
+    "title": "Two-prefix LCS table",
+    "question": 1143,
+    "complexity": "O(mn) time / O(mn) space",
+    "code": "import java.util.*;\n\npublic class Template_lcs {\nstatic int lcs(String a,String b) {\n    int[][] dp=new int[a.length()+1][b.length()+1];\n    for(int i=1;i<=a.length();i++) for(int j=1;j<=b.length();j++)\n        dp[i][j]=a.charAt(i-1)==b.charAt(j-1)?1+dp[i-1][j-1]:Math.max(dp[i-1][j],dp[i][j-1]);\n    return dp[a.length()][b.length()];\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "palindrome",
+    "title": "Expand palindrome centers",
+    "question": 647,
+    "complexity": "O(n\u00b2) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_palindrome {\nstatic int count(String s) {\n    int count=0;\n    for(int center=0;center<2*s.length()-1;center++) {\n        int l=center/2,r=l+center%2;\n        while(l>=0 && r<s.length() && s.charAt(l)==s.charAt(r)){count++;l--;r++;}\n    }\n    return count;\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "greedy",
+    "title": "Maximum subarray",
+    "question": 53,
+    "complexity": "O(n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_greedy {\nstatic long maximum(int[] a) {\n    if(a.length==0)throw new IllegalArgumentException();\n    long ending=a[0],best=a[0];\n    for(int i=1;i<a.length;i++){ending=Math.max(a[i],ending+a[i]);best=Math.max(best,ending);}\n    return best; // Nonempty subarray, so all-negative input is supported.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "interval",
+    "title": "Merge closed intervals",
+    "question": 56,
+    "complexity": "O(n log n) time / O(n) output",
+    "code": "import java.util.*;\n\npublic class Template_interval {\nstatic List<int[]> merge(int[][] a) {\n    Arrays.sort(a,(x,y)->Integer.compare(x[0],y[0]));\n    List<int[]> out=new ArrayList<>();\n    for(int[] range:a) {\n        if(out.isEmpty() || out.get(out.size()-1)[1]<range[0]) out.add(range.clone());\n        else out.get(out.size()-1)[1]=Math.max(out.get(out.size()-1)[1],range[1]);\n    }\n    return out; // Sorts the input's outer array.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "matrix",
+    "title": "Clockwise square rotation",
+    "question": 48,
+    "complexity": "O(n\u00b2) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_matrix {\nstatic void rotate(int[][] a) {\n    int n=a.length; // Contract: square matrix.\n    for(int r=0;r<n;r++)for(int c=r+1;c<n;c++){int t=a[r][c];a[r][c]=a[c][r];a[c][r]=t;}\n    for(int[] row:a)for(int l=0,r=n-1;l<r;l++,r--){int t=row[l];row[l]=row[r];row[r]=t;}\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "power",
+    "title": "Exponentiation by squaring",
+    "question": 50,
+    "complexity": "O(log absolute-exponent) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_power {\nstatic double power(double x,int exponent) {\n    long n=exponent; // Widen before negating MIN_VALUE.\n    if(n<0){x=1/x;n=-n;}\n    double out=1;\n    while(n>0){if((n&1)==1)out*=x;x*=x;n>>=1;}\n    return out; // Floating point rounding applies.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "bits",
+    "title": "Cancel paired values",
+    "question": 136,
+    "complexity": "O(n) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_bits {\nstatic int unique(int[] a) {\n    int result=0;for(int x:a)result^=x;return result;\n} // Exactly one unpaired value; every other value appears twice.\n\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "search",
+    "title": "First substring occurrence",
+    "question": 28,
+    "complexity": "O(nm) time / O(1) space",
+    "code": "import java.util.*;\n\npublic class Template_search {\nstatic int find(String text,String pattern) {\n    for(int start=0;start+pattern.length()<=text.length();start++) {\n        int j=0;while(j<pattern.length() && text.charAt(start+j)==pattern.charAt(j))j++;\n        if(j==pattern.length())return start;\n    }\n    return -1; // Empty pattern returns 0.\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  },
+  {
+    "id": "fenwick",
+    "title": "Fenwick prefix sums",
+    "question": 307,
+    "complexity": "O(log n) update/query / O(n) space",
+    "code": "import java.util.*;\n\npublic class Template_fenwick {\nstatic class Fenwick {\n    long[] bit;Fenwick(int n){bit=new long[n+1];}\n    void add(int index,long delta){for(int i=index+1;i<bit.length;i+=i&-i)bit[i]+=delta;}\n    long prefix(int end){long sum=0;for(int i=end;i>0;i-=i&-i)sum+=bit[i];return sum;}\n    long range(int l,int r){return prefix(r)-prefix(l);} // [l,r)\n}\n}\n",
+    "source": "Original Java 17 teaching template; adapt contracts to the problem"
+  }
+]

@@ -1,0 +1,3 @@
+import {splitSession} from './time.js';
+export const remaining=(timer,now=Date.now())=>timer?Math.max(0,timer.duration-(now-timer.started)):0;
+export function confirmSession(timer,end,minutes,zone,reason){if(!timer||timer.kind==='break')return null;const max=Math.max(0,(end-timer.started)/60000);if(!Number.isFinite(minutes)||minutes<0||minutes>max+.01)throw Error('Confirmed minutes must be between 0 and elapsed time.');if(Math.abs(minutes-max)>1&&!reason.trim())throw Error('Add a reason for the time correction.');return {id:timer.id,start:timer.started,end,minutes,reason,zone,splits:splitSession(timer.started,end,zone).map(s=>({day:s.day,minutes:max?s.ms/60000*(minutes/max):0}))};}

@@ -1,0 +1,6 @@
+node_modules/
+java-build/
+*.class
+dsa-forge-backup-*.json
+dsa-forge-before-import.json
+dsa-forge-notes-*.md
